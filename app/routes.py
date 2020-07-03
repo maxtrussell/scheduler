@@ -16,6 +16,7 @@ from werkzeug.urls import url_parse
 from app import (
     app,
     db,
+    errors,
 )
 from app.forms import (
     EventForm,
@@ -92,7 +93,7 @@ class TimeChoice:
 @login_required
 def event(event_id):
     form = EventForm()
-    event = Event.query.get(event_id)
+    event = Event.query.get_or_404(event_id)
     times = Time.query.filter_by(event_id=event.id).all()
     if request.method == 'POST':
         suggested_times = form.suggested_times.data
@@ -154,7 +155,7 @@ def event(event_id):
 @app.route('/event/<event_id>/delete', methods=['GET', 'POST'])
 @login_required
 def delete_event(event_id):
-    event = Event.query.get(event_id)
+    event = Event.query.get_or_404(event_id)
     if not has_perms(event.owner):
         flash('Insufficient permissions')
         return redirect(url_for('event', event_id=event_id))
@@ -188,7 +189,7 @@ def create_event():
 @login_required
 def edit_event(event_id):
     form = EditEventForm()
-    event = Event.query.get(event_id)
+    event = Event.query.get_or_404(event_id)
     times = Time.query.filter_by(event_id=event.id).all()
     if not has_perms(event.owner):
         flash('Insufficient permissions')
