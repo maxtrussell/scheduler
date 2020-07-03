@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<h1> Delete '{{ event.description }}'</h1>
+<div class="row">
+  <div class="col-md-4">
+	<form method="post">
+	  <h4>Are you sure you want to delete this event?</h4>
+	  <br>
+	  <input type="submit" value="Delete Event">
+	</form>
+  </div>
+</div>
+<br>
+<a href={{ url_for('event', event_id=event.id) }}>Nevermind, take me back</a>
+
+
+{% endblock %}

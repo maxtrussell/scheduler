@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<h1>{{ event.description }}</h1>
+<h4>Owner: {{ event.owner.username }}</h4>
+<hr>
+<h4>What time works for you?</h4>
+
+<div class="row">
+  <div class="col-md-6">
+	<form method="post">
+	  {# {{ form.hidden_tag() }} #}
+	  {% for time in  existing_times %}
+	  <input type="checkbox" id="{{ time.time }}"
+			 name="{{ time.time }}" {% if time.checked %}checked{% endif %}>
+	  <label for="{{ time.time }}">{{ time.time }} (<b>{{ time.users_str }}</b>)</label>
+	  <br>
+	  {% endfor %}
+	  <br>
+
+	  <p>
+		{{ form.suggested_times.label }}
+		<br>
+		{{ form.suggested_times(
+		size=64,
+		placeholder="Sat 7pm central, Sun 7pm central",
+		class="form-control",
+		) }}
+	  </p>
+	  <p>{{ form.submit() }}</p>
+	</form>
+  </div>
+</div>
+
+
+{% if has_perms(event.owner) %}
+<hr>
+<a href="{{ url_for('delete_event', event_id=event.id) }}">Delete Event</a>
+|
+<a href="{{ url_for('edit_event', event_id=event.id) }}">Edit Event</a>
+{% endif %}
+{% endblock %}

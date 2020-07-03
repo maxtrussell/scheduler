@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<h1>Edit "{{ event.description }}"</h1>
+
+<div class="row">
+  <div class="col-md-4">
+	<form method="post">
+	  <p>
+		{{ form.description.label }}
+		<br>
+		{{ form.description(
+		size=32,
+		value=event.description,
+		class="form-control",
+		) }}
+	  </p>
+	  <label>Mark times to delete</label>
+	  <br>
+	  {% for time in existing_times %}
+	  <input type="checkbox" id="{{ time.time }}"
+			 name="{{ time.time }}">
+	  <label for="{{ time.time }}">{{ time.time }} (<b>{{ time.users_str }}</b>)</label>
+	  <br>
+	  {% endfor %}
+	  <br>
+	  <p>{{ form.submit() }}</p>
+	</form>
+  </div>
+</div>
+{% endblock %}

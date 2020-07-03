@@ -15,7 +15,20 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    events = db.relationship('Event', backref='owner', lazy='dynamic')
+    events = db.relationship(
+        'Event',
+        backref='owner',
+        lazy='dynamic',
+        passive_deletes=True,
+        cascade="all, delete-orphan",
+    )
+    commitments = db.relationship(
+        'Commitment',
+        backref='user',
+        lazy='dynamic',
+        passive_deletes=True,
+        cascade="all, delete-orphan",
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -28,12 +41,39 @@ class User(UserMixin, db.Model):
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(140))
+    description = db.Column(db.String(140), unique=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+    times = db.relationship(
+        'Time',
+        backref='event',
+        lazy='dynamic',
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self):
         return '<Event {}>'.format(self.description)
+
+class Time(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id', ondelete='CASCADE'))
+    description = db.Column(db.String(140))
+    commitments = db.relationship(
+        'Commitment',
+        backref='time',
+        lazy='dynamic',
+        cascade="all, delete-orphan",
+    )
+    __table_args__ = (db.UniqueConstraint('description', 'event_id'),)
+
+    def __repr__(self):
+        return '<Time {}>'.format(self.description)
+
+class Commitment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    time_id = db.Column(db.Integer, db.ForeignKey('time.id', ondelete='CASCADE'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+    __table_args__ = (db.UniqueConstraint('time_id', 'user_id'),)
 
 @login.user_loader
 def load_user(id):

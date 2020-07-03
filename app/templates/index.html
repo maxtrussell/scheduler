@@ -1,8 +1,16 @@
 {% extends "base.html" %}
 
-{% block content %}
-    <h1>Hi, {{ current_user.username }}!</h1>
+{% block app_content %}
+<div class="row">
+  <div class="col-md-6">
+	<h2>Events:</h2>
+	<ul style="font-size:18px">
     {% for event in events %}
-    <div><p>{{ event.owner.username }}: <b>{{ event.description }}</b></p></div>
-    {% endfor %}
+	<li><a href="/event/{{ event.id }}">
+	  {{ event.owner.username }}: {{ event.description }}
+	</a></li>
+	{% endfor %}
+	</ul>
+  </div>
+</div>
 {% endblock %}

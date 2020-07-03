@@ -12,7 +12,11 @@ from wtforms.validators import (
     ValidationError,
 )
 
-from app.models import User
+from app import app
+from app.models import (
+    User,
+    Time,
+)
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -28,6 +32,7 @@ class RegistrationForm(FlaskForm):
         'Repeat Password',
         validators=[DataRequired(), EqualTo('password')],
     )
+    registration_key = StringField('Registration Key', validators=[DataRequired()])
     submit = SubmitField('Register')
 
     def validate_username(self, username):
@@ -39,3 +44,21 @@ class RegistrationForm(FlaskForm):
         email = User.query.filter_by(email=email.data).first()
         if email is not None:
             raise ValidationError('Please use a different email address')
+
+    def validate_registration_key(self, registration_key):
+        if registration_key.data != app.registration_key:
+            raise ValidationError('Invalid registration key')
+
+class EventForm(FlaskForm):
+    suggested_times = StringField(
+        "Or suggest a new time (as many as you'd like, seperated by commas)",
+    )
+    submit = SubmitField('Submit')
+
+class NewEventForm(FlaskForm):
+    description = StringField('Name', validators=[DataRequired()])
+    submit = SubmitField('Create Event')
+
+class EditEventForm(FlaskForm):
+    description = StringField('Edit Name', validators=[DataRequired()])
+    submit = SubmitField('Submit Edits')
