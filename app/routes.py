@@ -30,6 +30,8 @@ from app.models import (
     User,
     Time,
     Commitment,
+    Transaction,
+    Account,
 )
 
 @app.route('/')
@@ -219,6 +221,85 @@ def edit_event(event_id):
         existing_times=existing_times,
     )
 
+class Treasure():
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+@app.route('/vault')
+@login_required
+def vault():
+    transactions = Transaction.query.order_by(Transaction.timestamp.desc()).all()
+    account = Account.query.get(1)
+    treasure = [
+        Treasure("2 Gold Goblets", 40),
+        Treasure("Jade Skull", 12),
+        Treasure("Tome of the Necromancer", 200),
+    ]
+    return render_template(
+        'vault.html',
+        title='Vault',
+        account=account,
+        transactions=transactions,
+        treasure=treasure,
+    )
+
+@app.route('/vault/transaction', methods=['POST'])
+@login_required
+def add_transaction():
+    pp = 0 if not request.form['pp'] else int(request.form['pp'])
+    gp = 0 if not request.form['gp'] else int(request.form['gp'])
+    ep = 0 if not request.form['ep'] else int(request.form['ep'])
+    sp = 0 if not request.form['sp'] else int(request.form['sp'])
+    cp = 0 if not request.form['cp'] else int(request.form['cp'])
+    if request.form['transaction_type'] == "Withdrawal":
+       pp *= -1
+       gp *= -1
+       sp *= -1
+       ep *= -1
+       cp *= -1
+
+    prev_total = 0
+    prev_transaction = Transaction.query.order_by(Transaction.timestamp.desc()).first()
+    if prev_transaction:
+        prev_total = prev_transaction.running_total
+    transaction = Transaction(
+        user_id=current_user.id,
+        description=request.form['description'],
+        platinum=pp,
+        gold=gp,
+        electrum=ep,
+        silver=sp,
+        copper=cp,
+        running_total=prev_total + \
+            copper_value(pp, gp, ep, sp, cp) / 100.0,
+    )
+    # TODO: hack
+    account = Account.query.get(1)
+    account.platinum += transaction.platinum
+    account.gold += transaction.gold
+    account.electrum += transaction.electrum
+    account.silver += transaction.silver
+    account.copper += transaction.copper
+
+    db.session.add(transaction)
+    try:
+        db.session.commit()
+    except Exception as e:
+        flash ('Transaction failed')
+        app.logger.error(str(e))
+        db.session.rollback()
+        return redirect(url_for('vault'))
+    flash('Transaction recorded successfully!')
+    return redirect(url_for('vault'))
+
 def has_perms(owner):
     return (current_user.username in app.admins
             or current_user.username == owner.username)
+
+def copper_value(pp, gp, ep, sp, cp):
+    return (1000 * pp
+            + 100 * gp
+            + 50 * ep
+            + 10 * sp
+            + 1 * cp)

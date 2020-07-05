@@ -1,0 +1,42 @@
+<div class="panel-group">
+  <div class="panel panel-default">
+	<div class="panel-heading">
+	  <h4 class="panel-title">
+		<a data-toggle="collapse" href="#collapse1">View Transactions</a>
+	  </h4>
+	</div>
+	<div id="collapse1" class="panel-collapse collapse">
+	  <div class="panel-body">
+		<table class="table">
+		  <thead>
+			<tr>
+			  <th>Payee</th>
+			  <th>PP</th>
+			  <th>GP</th>
+			  <th>EP</th>
+			  <th>SP</th>
+			  <th>CP</th>
+			  <th>Description</th>
+			  <th>Running total (gp)</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			{% for t in transactions %}
+			<tr>
+			  <td>{{ t.user.username }}</td>
+			  <td>{{ t.platinum }}</td>
+			  <td>{{ t.gold }}</td>
+			  <td>{{ t.electrum }}</td>
+			  <td>{{ t.silver }}</td>
+			  <td>{{ t.copper }}</td>
+			  <td>{{ t.description }}</td>
+			  <td>{{ t.running_total }}</td>
+			</tr>
+			{% endfor %}
+		  </tbody>
+		</table>
+
+	  </div>
+	</div>
+  </div>
+</div> 

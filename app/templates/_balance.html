@@ -1,0 +1,36 @@
+<form class="form-inline" method="post" action="/vault/transaction">
+  <table class="table">
+	<thead>
+	  <tr>
+		<th>Platinum</th>
+		<th>Gold</th>
+		<th>Electrum</th>
+		<th>Silver</th>
+		<th>Copper</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr>
+		<td>{{ account.platinum }}</td>
+		<td>{{ account.gold }}</td>
+		<td>{{ account.electrum }}</td>
+		<td>{{ account.silver }}</td>
+		<td>{{ account.copper }}</td>
+	  </tr>
+	  <tr>
+		<td><input type="number" size="4" min="0" name="pp"></td>
+		<td><input type="number" size="4" min="0" name="gp"></td>
+		<td><input type="number" size="4" min="0" name="ep"></td>
+		<td><input type="number" size="4" min="0" name="sp"></td>
+		<td><input type="number" size="4" min="0" name="cp"></td>
+	  </tr>
+	</tbody>
+  </table>
+  <select class="form-control" name="transaction_type">
+	<option value="Withdrawal">Withdrawal</option>
+	<option value="Deposit">Deposit</option>
+  </select>
+  <input type="text" class="form-control" size="32" name="description"
+		 placeholder="transaction description">
+  <input class="btn btn-default" type="submit" value="New Transaction">
+</form>

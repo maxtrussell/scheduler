@@ -29,6 +29,13 @@ class User(UserMixin, db.Model):
         passive_deletes=True,
         cascade="all, delete-orphan",
     )
+    transactions = db.relationship(
+        'Transaction',
+        backref='user',
+        lazy='dynamic',
+        passive_deletes=True,
+        cascade="all, delete-orphan",
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -75,6 +82,47 @@ class Commitment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
     __table_args__ = (db.UniqueConstraint('time_id', 'user_id'),)
 
+class Account(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(140))
+    platinum = db.Column(db.Integer)
+    gold = db.Column(db.Integer)
+    electrum = db.Column(db.Integer)
+    silver = db.Column(db.Integer)
+    copper = db.Column(db.Integer)
+    __table_args__ = (
+        db.CheckConstraint('platinum >= 0', name='platinum_gte_0'),
+        db.CheckConstraint('gold >= 0', name='gold_gte_0'),
+        db.CheckConstraint('electrum >= 0', name='electrum_gte_0'),
+        db.CheckConstraint('silver >= 0', name='silver_gte_0'),
+        db.CheckConstraint('copper >= 0', name='copper_gte_0'),
+    )
+
+class Transaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    account_id = db.Column(db.Integer, db.ForeignKey('account.id', ondelete='CASCADE'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+    description = db.Column(db.String(140))
+    platinum = db.Column(db.Integer)
+    gold = db.Column(db.Integer)
+    electrum = db.Column(db.Integer)
+    silver = db.Column(db.Integer)
+    copper = db.Column(db.Integer)
+    running_total = db.Column(db.Float)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
+if len(Account.query.all()) == 0:
+    a = Account(
+        description="Party account",
+        platinum=0,
+        gold=0,
+        electrum=0,
+        silver=0,
+        copper=0,
+    )
+    db.session.add(a)
+    db.session.commit()

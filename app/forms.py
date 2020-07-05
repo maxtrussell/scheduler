@@ -4,11 +4,15 @@ from wtforms import (
     PasswordField,
     BooleanField,
     SubmitField,
+    SelectField,
+    IntegerField,
 )
 from wtforms.validators import (
     Email,
     EqualTo,
     DataRequired,
+    Optional,
+    NumberRange,
     ValidationError,
 )
 
@@ -17,6 +21,14 @@ from app.models import (
     User,
     Time,
 )
+
+class Positive:
+    def __init__(self):
+        pass
+    
+    def __call__(self, form, field):
+        if field.data is not None and field.data < 0:
+            raise ValidationError('Number must be positive')
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])

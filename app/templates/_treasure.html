@@ -1,0 +1,34 @@
+<h2>Treasure (not yet implemented)</h2>
+<table class="table">
+  <thead>
+	<tr>
+	  <th>Item</th>
+	  <th>Value (gp)</th>
+	  <th><th>
+	</tr>
+  </thead>
+  <tbody>
+	<tr>
+	  <td>
+		<input type="text" class="form-control"
+			   placeholder="Treasure Description">
+	  </td>
+	  <td>
+		<input type="number" min="0" class="form-control"
+			   placeholder="Value (gp)">
+	  </td>
+	  <td>
+		<input type="submit" value="Add" class="btn btn-default">
+	  </td>
+	  {% for t in treasure %}
+	<tr>
+	  <td>{{ t.name }}</td>
+	  <td>{{ t.value }}</td>
+	  <td>
+		<input type="submit" value="Sell" class="btn btn-default">
+		<input type="submit" value="Delete" class="btn btn-default">
+	  </td>
+	</tr>
+	{% endfor %}
+  </tbody>
+</table>

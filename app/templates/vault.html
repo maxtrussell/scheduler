@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+<h1>Party Vault</h1>
+<hr>
+<div class="row">
+  <div class="col-md-10">
+	<h2>Current Balance</h2>
+	<br>
+
+	{% include '_balance.html' %}
+
+	<br>
+
+	{% include '_transactions.html' %}
+
+	<hr>
+	
+	{% include '_treasure.html' %}
+
+  </div>
+</div>
+
+{% endblock %}
