@@ -32,6 +32,7 @@ from app.models import (
     Commitment,
     Transaction,
     Account,
+    Treasure,
 )
 
 @app.route('/')
@@ -221,21 +222,12 @@ def edit_event(event_id):
         existing_times=existing_times,
     )
 
-class Treasure():
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
-
 @app.route('/vault')
 @login_required
 def vault():
     transactions = Transaction.query.order_by(Transaction.timestamp.desc()).all()
     account = Account.query.get(1)
-    treasure = [
-        Treasure("2 Gold Goblets", 40),
-        Treasure("Jade Skull", 12),
-        Treasure("Tome of the Necromancer", 200),
-    ]
+    treasure = Treasure.query.order_by(Treasure.timestamp.desc()).all()
     return render_template(
         'vault.html',
         title='Vault',
@@ -293,9 +285,77 @@ def add_transaction():
     flash('Transaction recorded successfully!')
     return redirect(url_for('vault'))
 
+@app.route('/vault/treasure', methods=['POST'])
+@login_required
+def add_treasure():
+    treasure = Treasure(
+        description=request.form["description"],
+        value=int(request.form["value"])
+    )
+    db.session.add(treasure)
+    db.session.commit()
+    flash('Successfully added treasure!')
+    return redirect(url_for('vault'))
+
+@app.route('/vault/treasure/delete', methods=['POST'])
+@login_required
+def delete_treasure():
+    treasure = Treasure.query.get(int(request.form['treasure_id']))
+    db.session.delete(treasure)
+    db.session.commit()
+    flash('Successfully deleted treasure!')
+    return redirect(url_for('vault'))
+
+@app.route('/vault/treasure/sell', methods=['POST'])
+@login_required
+def sell_treasure():
+    treasure = Treasure.query.get(int(request.form['treasure_id']))
+
+    prev_total = 0
+    prev_transaction = Transaction.query.order_by(Transaction.timestamp.desc()).first()
+    if prev_transaction:
+        prev_total = prev_transaction.running_total
+
+    pp, gp, ep, sp, cp = make_change(treasure.value * 100)
+    description = f'Sold "{treasure.description}"'
+    transaction = Transaction(
+        description=description,
+        platinum=pp,
+        gold=gp,
+        electrum=ep,
+        silver=sp,
+        copper=cp,
+        running_total=prev_total + \
+            copper_value(pp, gp, ep, sp, cp) / 100.0,
+    )
+
+    # TODO: hack
+    account = Account.query.get(1)
+    account.platinum += transaction.platinum
+    account.gold += transaction.gold
+    account.electrum += transaction.electrum
+    account.silver += transaction.silver
+    account.copper += transaction.copper
+
+    db.session.add(transaction)
+    db.session.delete(treasure)
+    db.session.commit()
+
+    flash('Successfully sold treasure!')
+    return redirect(url_for('vault'))
+
 def has_perms(owner):
     return (current_user.username in app.admins
             or current_user.username == owner.username)
+
+def make_change(cp):
+    denominations = [1000, 100, 50, 10]
+    change = []
+    for denomination in denominations:
+        change.append(cp // denomination)
+        cp = cp % denomination
+    change.append(cp)
+    return change
 
 def copper_value(pp, gp, ep, sp, cp):
     return (1000 * pp

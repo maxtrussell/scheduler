@@ -111,6 +111,12 @@ class Transaction(db.Model):
     running_total = db.Column(db.Float)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
+class Treasure(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(140))
+    value = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))

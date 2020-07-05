@@ -1,5 +1,13 @@
 from app import app, db
-from app.models import User, Event, Time, Commitment, Transaction, Account
+from app.models import (
+    User,
+    Event,
+    Time,
+    Commitment,
+    Transaction,
+    Account,
+    Treasure,
+)
 
 @app.shell_context_processor
 def make_shell_context():
@@ -11,4 +19,5 @@ def make_shell_context():
         'Commitment': Commitment,
         'Transaction': Transaction,
         'Account': Account,
+        'Treasure': Treasure,
     }

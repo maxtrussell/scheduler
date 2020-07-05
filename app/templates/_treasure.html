@@ -1,4 +1,4 @@
-<h2>Treasure (not yet implemented)</h2>
+<h2>Treasure</h2>
 <table class="table">
   <thead>
 	<tr>
@@ -8,25 +8,35 @@
 	</tr>
   </thead>
   <tbody>
-	<tr>
-	  <td>
-		<input type="text" class="form-control"
-			   placeholder="Treasure Description">
-	  </td>
-	  <td>
-		<input type="number" min="0" class="form-control"
-			   placeholder="Value (gp)">
-	  </td>
-	  <td>
-		<input type="submit" value="Add" class="btn btn-default">
-	  </td>
+	<form action="vault/treasure" method="post">
+	  <tr>
+		<td>
+		  <input type="text" class="form-control" name="description"
+				 placeholder="Treasure Description" required>
+		</td>
+		<td>
+		  <input type="number" min="0" class="form-control" name="value" mine="0"
+				 placeholder="Value (gp)" required>
+		</td>
+		<td>
+		  <input type="submit" value="Add" class="btn btn-default">
+		</td>
+	  </tr>
+	</form>
 	  {% for t in treasure %}
 	<tr>
-	  <td>{{ t.name }}</td>
+	  <td>{{ t.description }}</td>
 	  <td>{{ t.value }}</td>
 	  <td>
-		<input type="submit" value="Sell" class="btn btn-default">
-		<input type="submit" value="Delete" class="btn btn-default">
+		<form action="/vault/treasure/sell" method="post" class="pull-left">
+		  <input type="hidden" name="treasure_id" value="{{ t.id }}">
+		  <input type="submit" value="Sell" class="btn btn-default">
+		</form>
+
+		<form action="/vault/treasure/delete" method="post">
+		  <input type="hidden" name="treasure_id" value="{{ t.id }}">
+		  <input type="submit" value="Delete" class="btn btn-default">
+		</form>
 	  </td>
 	</tr>
 	{% endfor %}
