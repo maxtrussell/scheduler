@@ -18,6 +18,7 @@ from app import (
     db,
     errors,
 )
+import app.discord as discord
 from app.forms import (
     EventForm,
     LoginForm,
@@ -34,6 +35,7 @@ from app.models import (
     Account,
     Treasure,
 )
+from config import Config
 
 @app.route('/')
 @login_required
@@ -137,6 +139,19 @@ def event(event_id):
             
         db.session.commit()
         flash('Thank you, your repsonse has been submitted!')
+
+        times = Time.query.filter_by(event_id=event.id).all()
+        quorum_times = [time for time in times if quorum(time)]
+        if quorum_times:
+            msg = (
+                f"Quorum is met for {event.description} "
+                f"at the following times:"
+            )
+            for quorum_time in quorum_times:
+                users = [c.user.username for c in quorum_time.commitments.all()]
+                msg += f"\n\t- {quorum_time.description} with {users}"
+            discord.message(msg)
+
         return redirect(url_for('event', event_id=event_id))
         
     existing_times = []
@@ -363,3 +378,11 @@ def copper_value(pp, gp, ep, sp, cp):
             + 50 * ep
             + 10 * sp
             + 1 * cp)
+
+def quorum(time):
+    commitments = time.commitments.all()
+    if len(commitments) >= Config.QUORUM_THRESHOLD:
+        usernames = [User.query.get_or_404(c.user_id).username for c in commitments]
+        if Config.DM_USER in usernames:
+            return True
+    return False
