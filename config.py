@@ -2,6 +2,7 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
+    PROD_MODE = os.getenv('PROD_MODE', False)
     DISCORD_USERNAME = "DnD Bot"
     DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/766149946797457459/CgTWyX7GqRod1RRxEqAZg3FqdaPxNhf6HxHg_lH8i45Uv7JOvSI6eAlFdBXoH6lrYhzw'
     DM_USER = 'max'

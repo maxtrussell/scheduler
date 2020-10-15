@@ -100,6 +100,7 @@ def event(event_id):
     form = EventForm()
     event = Event.query.get_or_404(event_id)
     times = Time.query.filter_by(event_id=event.id).all()
+    initial_quorum  = any([True for time in times if quorum(time)])
     if request.method == 'POST':
         suggested_times = form.suggested_times.data
         if suggested_times != "":
@@ -144,13 +145,17 @@ def event(event_id):
         quorum_times = [time for time in times if quorum(time)]
         if quorum_times:
             msg = (
-                f"Quorum is met for {event.description} "
+                f"Quorum is met for '{event.description}' "
                 f"at the following times:"
             )
             for quorum_time in quorum_times:
                 users = [c.user.username for c in quorum_time.commitments.all()]
                 msg += f"\n\t- {quorum_time.description} with {users}"
             discord.message(msg)
+        elif initial_quorum:
+            discord.message(
+                f"Quorum is no longer met for '{event.description}'"
+            )
 
         return redirect(url_for('event', event_id=event_id))
         
