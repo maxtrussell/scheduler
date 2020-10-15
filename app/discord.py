@@ -8,4 +8,4 @@ def message(content):
         webhook = Webhook.from_url(Config.DISCORD_WEBHOOK, adapter=RequestsWebhookAdapter())
         webhook.send(content, username=Config.DISCORD_USERNAME)
     else:
-        print(f"Discord: {content}")
+        print(f"[Discord]: {content}")

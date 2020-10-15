@@ -3,6 +3,11 @@
 {% block app_content %}
 <h1>{{ event.description }}</h1>
 <h4>Owner: {{ event.owner.username }}</h4>
+{% if has_perms(event.owner) %}
+<form method="post" action="{{ url_for('post_event', event_id=event.id) }}">
+  <input type="submit" value="Post to Discord">
+</form>
+{% endif %}
 <hr>
 <h4>What time works for you?</h4>
 

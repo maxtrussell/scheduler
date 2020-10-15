@@ -189,6 +189,16 @@ def delete_event(event_id):
         return redirect(url_for('index'))
     return render_template('delete_event.html', event=event)
 
+@app.route('/event/<event_id>/post', methods=['POST'])
+@login_required
+def post_event(event_id):
+    event = Event.query.get_or_404(event_id)
+    discord.message(
+        f'@here Event "{event.description}" has been created. '
+        f'Please fill it out here: https://dnd.maxtrussell.duckdns.org/event/{event.id}'
+    )
+    return redirect(url_for('event', event_id=event_id))
+
 @app.route('/event/create', methods=['GET', 'POST'])
 @login_required
 def create_event():
