@@ -194,7 +194,7 @@ def delete_event(event_id):
 def post_event(event_id):
     event = Event.query.get_or_404(event_id)
     discord.message(
-        f'@here Event "{event.description}" has been created. '
+        f'@everyone Event "{event.description}" has been created. '
         f'Please fill it out here: https://dnd.maxtrussell.duckdns.org/event/{event.id}'
     )
     return redirect(url_for('event', event_id=event_id))
